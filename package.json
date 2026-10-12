@@ -1,0 +1,34 @@
+{
+  "name": "expense-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Трекер расходов: Next.js + NestJS + PostgreSQL/Prisma",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "postinstall": "npm run build -w @expense-tracker/shared",
+    "dev": "concurrently --names shared,api,web --prefix-colors blue,green,magenta --kill-others-on-fail \"npm run dev -w @expense-tracker/shared\" \"npm run dev -w @expense-tracker/api\" \"npm run dev -w @expense-tracker/web\"",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run build -w @expense-tracker/shared && npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:generate": "npm run db:generate -w @expense-tracker/api",
+    "db:migrate": "npm run db:migrate -w @expense-tracker/api --",
+    "db:studio": "npm run db:studio -w @expense-tracker/api"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1"
+  },
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
+  }
+}

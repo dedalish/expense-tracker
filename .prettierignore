@@ -1,0 +1,5 @@
+# Prettier также учитывает .gitignore
+package-lock.json
+apps/api/prisma/migrations/
+# Планы, промпты и шаблоны Claude Code: хранятся как написаны
+/.claude/
