@@ -1,0 +1,44 @@
+# Новая функциональность - создать модуль транзакций
+
+## Контекст
+Проект: Nest.js + Next + PostgreSQL + Prisma
+Что уже есть: user, авторизация jwt, модуль категорий + frontend
+
+## Задача 
+Создай TransactionsModule - центральный модуль
+приложения для учета доходов и расходов
+
+## Модель данных
+- Добавь модель Transaction в schema.prisma:
+- id (String, uuid, @default(uuid()))
+- amount (Decimal)
+- type (Enum: INCOME, EXPENSE) description (String, nullable)
+- date (DateTime)
+- categoryId (String, связь с Category)
+- userId (String, связь с User)
+- createdAt (DateTime, @default (now()))
+
+Обнови модели User и Category - добавь
+обратные связи transactions Transaction[]
+
+После изменения схемы создай и примени миграцию:
+npx prisma migrate dev --name add-transactions
+
+## Контроллер
+Эндпоинты:
+- POST /tfansactions: создать транзакцию
+- GET /transactions: список с query параметрами
+- dateFrom, datelo, type, categoryid
+- GET /transactions/summary: агрегация,
+- query параметры month и year (оба обязательные)
+- GET /transactions/:id: одна транзакция
+- РАТС /transactions/:id: обновить
+- DELETE /transactions/: id: удалить
+
+## Паттерн
+Используй @apps/api/src/categories как образец структуры для backend
+
+## Ограничения
+- Не добавлять зависимости если не указано в задаче
+- Используй class-validator для DTO
+- После реализации собирай проект

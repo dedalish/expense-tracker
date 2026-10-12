@@ -1,0 +1,75 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                    String    @id @default(uuid(7)) @db.Uuid
+  name                  String
+  email                 String    @unique
+  passwordHash          String    @map("password_hash")
+  /// Когда дано согласие на обработку персональных данных (152-ФЗ).
+  /// null у пользователей, зарегистрированных до появления согласия.
+  personalDataConsentAt DateTime? @map("personal_data_consent_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  categories   Category[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String
+  /// Hex `#rrggbb` в нижнем регистре.
+  color     String
+  /// Emoji или имя иконки.
+  icon      String
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  transactions Transaction[]
+
+  // Название уникально только в пределах пользователя.
+  @@unique([userId, name])
+  @@map("categories")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+
+  @@map("transaction_type")
+}
+
+model Transaction {
+  id          String          @id @default(uuid(7)) @db.Uuid
+  /// Всегда положительная, знак задаёт type.
+  amount      Decimal         @db.Decimal(12, 2)
+  type        TransactionType
+  description String?
+  /// Дата без времени: часовой пояс не сдвигает её в соседний день.
+  date        DateTime        @db.Date
+  categoryId  String          @map("category_id") @db.Uuid
+  // NoAction, а не Restrict: Restrict проверяется сразу и ломает каскадное
+  // удаление пользователя. NoAction проверяется в конце оператора.
+  category    Category        @relation(fields: [categoryId], references: [id], onDelete: NoAction)
+  userId      String          @map("user_id") @db.Uuid
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@index([userId, date])
+  @@index([categoryId])
+  @@map("transactions")
+}
