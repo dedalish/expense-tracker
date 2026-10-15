@@ -8,10 +8,10 @@ import type { z } from 'zod';
 import { Button } from '@/shared/ui/button';
 import { FieldGroup } from '@/shared/ui/field';
 import { registerAction } from '../api/actions';
-import { applyActionError } from '../lib/apply-action-error';
+import { applyActionError } from '@/shared/lib/action-error';
 import { ConsentField } from './consent-field';
-import { FormError } from './form-error';
-import { TextField } from './text-field';
+import { FormError } from '@/shared/ui/form-error';
+import { TextField } from '@/shared/ui/text-field';
 
 export function RegisterForm() {
   const form = useForm<z.input<typeof registerSchema>, unknown, RegisterInput>({
