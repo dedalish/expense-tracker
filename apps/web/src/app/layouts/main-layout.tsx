@@ -9,6 +9,7 @@ import {
   SidebarTrigger,
 } from '@/shared/ui/sidebar';
 import { Toaster } from '@/shared/ui/sonner';
+import { TimeZoneSync } from '../providers/time-zone-sync';
 
 /** Оболочка страниц для вошедшего пользователя: боковое меню и контент. */
 export async function MainLayout({ children }: { children: ReactNode }) {
@@ -31,6 +32,7 @@ export async function MainLayout({ children }: { children: ReactNode }) {
         </div>
       </SidebarInset>
       <Toaster richColors position="top-center" />
+      <TimeZoneSync />
     </SidebarProvider>
   );
 }
