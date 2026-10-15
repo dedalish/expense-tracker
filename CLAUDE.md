@@ -18,7 +18,7 @@ npm run format | format:check        # Prettier на весь репозитор
 ```
 
 Один пакет: `npm run <script> -w @expense-tracker/api` (или `web`, `shared`).
-Один тест (Vitest, только в api): `npm run test -w @expense-tracker/api -- src/health/health.controller.spec.ts` или `-- -t "<название теста>"`.
+Один тест (Vitest в api и web): `npm run test -w @expense-tracker/api -- src/health/health.controller.spec.ts` или `-- -t "<название теста>"`. Тесты лежат рядом с кодом как `*.spec.ts`. В web (`vitest.config.mts`: `.mts`, потому что пакет не ESM; алиас `@/*`, окружение node) пока тестируются чистые функции из `lib`-сегментов, например пагинация в `widgets/transactions-list/lib`.
 Новая зависимость: `npm install <pkg> -w @expense-tracker/<пакет>`.
 
 Перед первым запуском: `cp apps/api/.env.example apps/api/.env`, `cp apps/web/.env.example apps/web/.env.local`.
