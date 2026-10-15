@@ -16,7 +16,6 @@ import { toast } from 'sonner';
 import type { z } from 'zod';
 import { applyActionError } from '@/shared/lib/action-error';
 import { today } from '@/shared/lib/format';
-import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import {
   Dialog,
@@ -38,6 +37,7 @@ import {
 } from '@/shared/ui/select';
 import { Textarea } from '@/shared/ui/textarea';
 import { TextField } from '@/shared/ui/text-field';
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group';
 import {
   createTransactionAction,
   updateTransactionAction,
@@ -51,6 +51,12 @@ interface TransactionFormDialogProps {
 }
 
 type FormInput = z.input<typeof createTransactionSchema>;
+
+// Порядок кнопок: расход встречается чаще, он первый.
+const TRANSACTION_TYPES = [
+  'EXPENSE',
+  'INCOME',
+] as const satisfies readonly TransactionType[];
 
 const TYPE_LABELS: Record<TransactionType, string> = {
   EXPENSE: 'Расход',
@@ -144,28 +150,25 @@ function TransactionForm({
           control={form.control}
           name="type"
           render={({ field }) => (
-            <div
-              role="radiogroup"
+            <ToggleGroup
               aria-label="Тип"
-              className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1"
+              spacing={1}
+              value={[field.value]}
+              // Тип обязателен: повторное нажатие на выбранный пункт
+              // снимает его в Base UI, такое изменение пропускаем.
+              onValueChange={([type]) => type && field.onChange(type)}
+              className="grid w-full grid-cols-2 bg-muted p-1"
             >
-              {(['EXPENSE', 'INCOME'] as const).map((type) => (
-                <button
+              {TRANSACTION_TYPES.map((type) => (
+                <ToggleGroupItem
                   key={type}
-                  type="button"
-                  role="radio"
-                  aria-checked={field.value === type}
-                  onClick={() => field.onChange(type)}
-                  className={cn(
-                    'rounded-md py-1.5 text-sm font-medium text-muted-foreground transition-colors',
-                    field.value === type &&
-                      'bg-background text-foreground shadow-sm',
-                  )}
+                  value={type}
+                  className="text-muted-foreground hover:bg-transparent aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-sm"
                 >
                   {TYPE_LABELS[type]}
-                </button>
+                </ToggleGroupItem>
               ))}
-            </div>
+            </ToggleGroup>
           )}
         />
         <div className="grid grid-cols-2 gap-4">
