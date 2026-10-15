@@ -149,26 +149,28 @@ function TransactionForm({
         <Controller
           control={form.control}
           name="type"
-          render={({ field }) => (
-            <ToggleGroup
-              aria-label="Тип"
-              spacing={1}
-              value={[field.value]}
-              // Тип обязателен: повторное нажатие на выбранный пункт
-              // снимает его в Base UI, такое изменение пропускаем.
-              onValueChange={([type]) => type && field.onChange(type)}
-              className="grid w-full grid-cols-2 bg-muted p-1"
-            >
-              {TRANSACTION_TYPES.map((type) => (
-                <ToggleGroupItem
-                  key={type}
-                  value={type}
-                  className="text-muted-foreground hover:bg-transparent aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-sm"
-                >
-                  {TYPE_LABELS[type]}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <ToggleGroup
+                aria-label="Тип"
+                variant="segmented"
+                spacing={1}
+                value={[field.value]}
+                // Тип обязателен: повторное нажатие на выбранный пункт
+                // снимает его в Base UI, такое изменение отменяем.
+                onValueChange={([type], details) =>
+                  type ? field.onChange(type) : details.cancel()
+                }
+                className="grid w-full grid-cols-2 rounded-lg bg-muted p-1"
+              >
+                {TRANSACTION_TYPES.map((type) => (
+                  <ToggleGroupItem key={type} value={type}>
+                    {TYPE_LABELS[type]}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+              <FieldError errors={[fieldState.error]} />
+            </Field>
           )}
         />
         <div className="grid grid-cols-2 gap-4">

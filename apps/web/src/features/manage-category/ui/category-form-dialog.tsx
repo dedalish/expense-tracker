@@ -12,7 +12,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import type { z } from 'zod';
 import { applyActionError } from '@/shared/lib/action-error';
-import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import {
   Dialog,
@@ -26,6 +25,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field';
 import { FormError } from '@/shared/ui/form-error';
 import { Input } from '@/shared/ui/input';
 import { TextField } from '@/shared/ui/text-field';
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group';
 import { createCategoryAction, updateCategoryAction } from '../api/actions';
 import { DEFAULT_COLOR, ICON_PRESETS } from '../config/presets';
 
@@ -105,24 +105,30 @@ function CategoryForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Иконка</FieldLabel>
-              <div className="flex flex-wrap gap-1">
+              <ToggleGroup
+                aria-label="Готовые иконки"
+                variant="outline"
+                size="lg"
+                spacing={1}
+                value={[field.value]}
+                // Снятие выбора повторным нажатием отменяем: поле очищается
+                // только в текстовом вводе ниже.
+                onValueChange={([icon], details) =>
+                  icon ? field.onChange(icon) : details.cancel()
+                }
+                className="flex-wrap"
+              >
                 {ICON_PRESETS.map((icon) => (
-                  <button
+                  <ToggleGroupItem
                     key={icon}
-                    type="button"
+                    value={icon}
                     aria-label={`Иконка ${icon}`}
-                    aria-pressed={field.value === icon}
-                    onClick={() => field.onChange(icon)}
-                    className={cn(
-                      'flex size-9 items-center justify-center rounded-md border text-lg transition-colors hover:bg-muted',
-                      field.value === icon &&
-                        'border-primary bg-muted ring-2 ring-primary/30',
-                    )}
+                    className="text-lg aria-pressed:border-primary aria-pressed:ring-2 aria-pressed:ring-primary/30"
                   >
                     {icon}
-                  </button>
+                  </ToggleGroupItem>
                 ))}
-              </div>
+              </ToggleGroup>
               <Input
                 {...field}
                 id={field.name}
