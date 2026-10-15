@@ -60,6 +60,15 @@ npm run format | format:check        # Prettier на весь репозитор
 
 Prettier: одинарные кавычки, `trailingComma: all`, ширина 80. Корневая `.claude/` (планы, промпты, шаблоны) исключена в `.prettierignore`, её файлы не форматировать. `prettier-plugin-tailwindcss` сортирует классы. ESLint-конфиги свои в каждом пакете (`eslint.config.mjs`). В api включён type-aware `recommendedTypeChecked`.
 
+## Ветки (GitHub flow)
+
+- `main` всегда рабочая: проходит `build`, `lint`, `typecheck`, `test`, `format:check`. Напрямую в `main` не коммитить.
+- Каждая фича или исправление делается в отдельной ветке от свежего `main`: `git switch main && git pull && git switch -c <ветка>`.
+- Имя ветки: `<type>/<scope>-<кратко>` латиницей в kebab-case, `type` и `scope` те же, что в коммитах: `feat/web-home`, `fix/api-transactions-summary`, `docs/claude-md`.
+- Одна ветка — одна фича. Работа, не относящаяся к ней, уходит в отдельную ветку.
+- Ветка вливается в `main` через pull request после зелёных проверок. Влитая ветка удаляется.
+- Ветку и PR создавать только по просьбе пользователя.
+
 ## Коммиты
 
 [Conventional Commits](https://www.conventionalcommits.org/ru/v1.0.0/): `<type>(<scope>): <описание>`.
