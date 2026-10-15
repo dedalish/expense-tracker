@@ -2,6 +2,7 @@ import type {
   CreateTransactionInput,
   ListTransactionsQuery,
   Transaction,
+  TransactionPage,
   TransactionSummary,
   TransactionSummaryQuery,
   UpdateTransactionInput,
@@ -42,17 +43,27 @@ export class TransactionsService {
     return toTransactionResponse(transaction);
   }
 
+  /** Страница за пределами данных даёт пустой `items`, а не ошибку. */
   async findAll(
     userId: string,
-    query: ListTransactionsQuery,
-  ): Promise<Transaction[]> {
-    const transactions = await this.transactions.findMany(userId, {
-      type: query.type,
-      categoryId: query.categoryId,
-      dateFrom: query.dateFrom ? toDbDate(query.dateFrom) : undefined,
-      dateTo: query.dateTo ? toDbDate(query.dateTo) : undefined,
-    });
-    return transactions.map(toTransactionResponse);
+    { page, pageSize, ...query }: ListTransactionsQuery,
+  ): Promise<TransactionPage> {
+    const { items, total } = await this.transactions.findMany(
+      userId,
+      {
+        type: query.type,
+        categoryId: query.categoryId,
+        dateFrom: query.dateFrom ? toDbDate(query.dateFrom) : undefined,
+        dateTo: query.dateTo ? toDbDate(query.dateTo) : undefined,
+      },
+      { skip: (page - 1) * pageSize, take: pageSize },
+    );
+    return {
+      items: items.map(toTransactionResponse),
+      total,
+      page,
+      pageSize,
+    };
   }
 
   async findOne(userId: string, id: string): Promise<Transaction> {

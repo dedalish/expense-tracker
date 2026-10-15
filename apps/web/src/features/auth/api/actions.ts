@@ -8,20 +8,19 @@ import {
   registerSchema,
 } from '@expense-tracker/shared';
 import { redirect } from 'next/navigation';
-import { z } from 'zod';
-import { ApiError, apiFetch } from '@/shared/api/client';
-import { clearSessionCookie, setSessionCookie } from '../model/session';
-import type { AuthActionError } from '../model/types';
+import { toActionError, toValidationError } from '@/shared/api/action-error';
+import { apiFetch } from '@/shared/api/client';
+import { clearSessionCookie } from '@/shared/api/session';
+import type { ActionError } from '@/shared/lib/action-error';
+import { setSessionCookie } from '../model/session';
 
-const SERVICE_UNAVAILABLE = 'Сервис недоступен, попробуйте позже';
-
-export async function loginAction(input: LoginInput): Promise<AuthActionError> {
+export async function loginAction(input: LoginInput): Promise<ActionError> {
   return authenticate('/auth/login', loginSchema, input);
 }
 
 export async function registerAction(
   input: RegisterInput,
-): Promise<AuthActionError> {
+): Promise<ActionError> {
   return authenticate('/auth/register', registerSchema, input);
 }
 
@@ -36,11 +35,11 @@ async function authenticate(
   path: string,
   schema: typeof loginSchema | typeof registerSchema,
   input: unknown,
-): Promise<AuthActionError> {
+): Promise<ActionError> {
   // Server Action можно вызвать в обход формы, поэтому проверяем ещё раз.
   const parsed = schema.safeParse(input);
   if (!parsed.success) {
-    return { fieldErrors: z.flattenError(parsed.error).fieldErrors };
+    return toValidationError(parsed.error);
   }
 
   try {
@@ -55,17 +54,4 @@ async function authenticate(
 
   // redirect бросает исключение, поэтому он вне try.
   redirect('/');
-}
-
-function toActionError(error: unknown): AuthActionError {
-  if (!(error instanceof ApiError) || error.status >= 500) {
-    console.error(error);
-    return { message: SERVICE_UNAVAILABLE };
-  }
-  // 400: ошибки по полям, общий текст «Validation failed» не показываем.
-  if (Object.keys(error.fieldErrors).length > 0) {
-    return { fieldErrors: error.fieldErrors };
-  }
-  // 401 и 409: api уже отдаёт текст на русском.
-  return { message: error.message };
 }

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { clearSessionCookie } from '@/features/auth';
+import { clearSessionCookie } from '@/shared/api/session';
 
 /**
  * Сброс сессии, которую api не принял (пользователь удалён, сменился секрет).

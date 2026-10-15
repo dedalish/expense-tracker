@@ -3,12 +3,14 @@ import type {
   LoginInput,
   PublicUser,
   RegisterInput,
+  UpdateProfileInput,
 } from '@expense-tracker/shared';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import type { User } from '../generated/prisma/client.js';
 import { CreateUserCommand } from '../users/commands/create-user.command.js';
+import { UpdateUserNameCommand } from '../users/commands/update-user-name.command.js';
 import { GetUserByEmailQuery } from '../users/queries/get-user-by-email.query.js';
 import { GetUserByIdQuery } from '../users/queries/get-user-by-id.query.js';
 import { toPublicUser } from '../users/user.mapper.js';
@@ -63,6 +65,20 @@ export class AuthService {
   async getProfile(userId: string): Promise<PublicUser> {
     const user = await this.queryBus.execute(new GetUserByIdQuery(userId));
     // Токен валиден, но пользователя уже нет (например, удалён).
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return toPublicUser(user);
+  }
+
+  async updateProfile(
+    userId: string,
+    { name }: UpdateProfileInput,
+  ): Promise<PublicUser> {
+    const user = await this.commandBus.execute(
+      new UpdateUserNameCommand(userId, name),
+    );
+    // Как и в getProfile: токен валиден, но пользователя уже нет.
     if (!user) {
       throw new UnauthorizedException();
     }

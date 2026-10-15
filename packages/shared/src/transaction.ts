@@ -44,13 +44,26 @@ export const updateTransactionSchema = createTransactionSchema
     message: 'Нужно передать хотя бы одно поле',
   });
 
-/** Фильтры списка; границы дат включительно. */
+/** Размер страницы списка транзакций по умолчанию. */
+export const TRANSACTIONS_PAGE_SIZE = 10;
+
+/**
+ * Фильтры и страница списка; границы дат включительно.
+ * Query-параметры приходят строками, поэтому page и pageSize через coerce.
+ */
 export const listTransactionsQuerySchema = z
   .object({
     dateFrom: dateSchema.optional(),
     dateTo: dateSchema.optional(),
     type: transactionTypeSchema.optional(),
     categoryId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(TRANSACTIONS_PAGE_SIZE),
   })
   .refine(
     // Строки YYYY-MM-DD сравниваются лексикографически так же, как даты.
@@ -73,6 +86,14 @@ export const transactionSchema = z.object({
   date: z.iso.date(),
   categoryId: z.uuid(),
   createdAt: z.iso.datetime(),
+});
+
+/** Страница списка: `total` — число транзакций по фильтрам без учёта страниц. */
+export const transactionPageSchema = z.object({
+  items: z.array(transactionSchema),
+  total: z.number().int(),
+  page: z.number().int(),
+  pageSize: z.number().int(),
 });
 
 export const transactionSummarySchema = z.object({
@@ -100,8 +121,12 @@ export type TransactionType = z.infer<typeof transactionTypeSchema>;
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>;
 export type ListTransactionsQuery = z.infer<typeof listTransactionsQuerySchema>;
+export type ListTransactionsQueryInput = z.input<
+  typeof listTransactionsQuerySchema
+>;
 export type TransactionSummaryQuery = z.infer<
   typeof transactionSummaryQuerySchema
 >;
 export type Transaction = z.infer<typeof transactionSchema>;
+export type TransactionPage = z.infer<typeof transactionPageSchema>;
 export type TransactionSummary = z.infer<typeof transactionSummarySchema>;

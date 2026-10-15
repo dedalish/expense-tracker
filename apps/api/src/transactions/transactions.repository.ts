@@ -27,6 +27,18 @@ export interface TransactionFilters {
   categoryId?: string;
 }
 
+/** Окно выборки: сколько пропустить и сколько взять. */
+export interface PageWindow {
+  skip: number;
+  take: number;
+}
+
+/** Страница транзакций и их общее число по фильтрам. */
+export interface TransactionsSlice {
+  items: Transaction[];
+  total: number;
+}
+
 /** Сумма транзакций одного типа в одной категории. */
 export interface CategoryTotal {
   categoryId: string;
@@ -48,20 +60,23 @@ export class TransactionsRepository {
     return this.prisma.transaction.create({ data: { ...data, userId } });
   }
 
-  /** undefined в фильтрах Prisma пропускает. */
-  findMany(
+  /** Страница и общее число одним запросом к БД (`$transaction`). */
+  async findMany(
     userId: string,
     filters: TransactionFilters,
-  ): Promise<Transaction[]> {
-    return this.prisma.transaction.findMany({
-      where: {
-        userId,
-        type: filters.type,
-        categoryId: filters.categoryId,
-        date: { gte: filters.dateFrom, lte: filters.dateTo },
-      },
-      orderBy: [{ date: 'desc' }, { id: 'desc' }],
-    });
+    { skip, take }: PageWindow,
+  ): Promise<TransactionsSlice> {
+    const where = this.buildWhere(userId, filters);
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.transaction.findMany({
+        where,
+        orderBy: [{ date: 'desc' }, { id: 'desc' }],
+        skip,
+        take,
+      }),
+      this.prisma.transaction.count({ where }),
+    ]);
+    return { items, total };
   }
 
   findOne(key: TransactionKey): Promise<Transaction | null> {
@@ -99,5 +114,18 @@ export class TransactionsRepository {
       total: group._sum.amount ?? new Prisma.Decimal(0),
       count: group._count._all,
     }));
+  }
+
+  /** undefined в фильтрах Prisma пропускает. */
+  private buildWhere(
+    userId: string,
+    filters: TransactionFilters,
+  ): Prisma.TransactionWhereInput {
+    return {
+      userId,
+      type: filters.type,
+      categoryId: filters.categoryId,
+      date: { gte: filters.dateFrom, lte: filters.dateTo },
+    };
   }
 }

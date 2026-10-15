@@ -5,8 +5,10 @@ import {
   type PublicUser,
   type RegisterInput,
   registerSchema,
+  type UpdateProfileInput,
+  updateProfileSchema,
 } from '@expense-tracker/shared';
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/zod-validation.pipe.js';
 import { AuthService } from './auth.service.js';
 import type { JwtPayload } from './auth.types.js';
@@ -37,5 +39,13 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: JwtPayload): Promise<PublicUser> {
     return this.auth.getProfile(user.sub);
+  }
+
+  @Patch('me')
+  updateMe(
+    @CurrentUser() user: JwtPayload,
+    @Body(new ZodValidationPipe(updateProfileSchema)) body: UpdateProfileInput,
+  ): Promise<PublicUser> {
+    return this.auth.updateProfile(user.sub, body);
   }
 }

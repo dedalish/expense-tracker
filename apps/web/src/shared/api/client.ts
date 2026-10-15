@@ -25,7 +25,7 @@ export class ApiError extends Error {
   }
 }
 
-interface ApiFetchOptions {
+export interface ApiFetchOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   body?: unknown;
   /** Access-токен для заголовка `Authorization: Bearer`. */

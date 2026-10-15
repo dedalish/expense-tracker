@@ -4,6 +4,7 @@ import type { JwtService } from '@nestjs/jwt';
 import { describe, expect, it, vi } from 'vitest';
 import type { User } from '../generated/prisma/client.js';
 import { CreateUserCommand } from '../users/commands/create-user.command.js';
+import { UpdateUserNameCommand } from '../users/commands/update-user-name.command.js';
 import { GetUserByEmailQuery } from '../users/queries/get-user-by-email.query.js';
 import { AuthService } from './auth.service.js';
 
@@ -146,5 +147,29 @@ describe('AuthService.getProfile', () => {
     await expect(service.getProfile(user.id)).rejects.toThrow(
       UnauthorizedException,
     );
+  });
+});
+
+describe('AuthService.updateProfile', () => {
+  it('меняет имя через команду и отдаёт пользователя без хэша', async () => {
+    const { service, commandBus } = setup();
+    commandBus.execute.mockResolvedValue({ ...user, name: 'Пётр' });
+
+    const result = await service.updateProfile(user.id, { name: 'Пётр' });
+
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      new UpdateUserNameCommand(user.id, 'Пётр'),
+    );
+    expect(result).toMatchObject({ id: user.id, name: 'Пётр' });
+    expect(result).not.toHaveProperty('passwordHash');
+  });
+
+  it('бросает 401, если пользователь удалён', async () => {
+    const { service, commandBus } = setup();
+    commandBus.execute.mockResolvedValue(null);
+
+    await expect(
+      service.updateProfile(user.id, { name: 'Пётр' }),
+    ).rejects.toThrow(UnauthorizedException);
   });
 });

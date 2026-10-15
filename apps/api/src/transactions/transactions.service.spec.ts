@@ -113,20 +113,53 @@ describe('TransactionsService.create', () => {
 describe('TransactionsService.findAll', () => {
   it('переводит фильтры дат в Date и возвращает ответы без userId', async () => {
     const { service, repository } = setup();
-    repository.findMany.mockResolvedValue([transaction]);
+    repository.findMany.mockResolvedValue({ items: [transaction], total: 1 });
 
     const result = await service.findAll(userId, {
       dateFrom: '2026-10-01',
       type: 'EXPENSE',
+      page: 1,
+      pageSize: 10,
     });
 
-    expect(repository.findMany).toHaveBeenCalledWith(userId, {
-      dateFrom: new Date('2026-10-01T00:00:00.000Z'),
-      dateTo: undefined,
-      type: 'EXPENSE',
-      categoryId: undefined,
-    });
-    expect(result[0]).not.toHaveProperty('userId');
+    expect(repository.findMany).toHaveBeenCalledWith(
+      userId,
+      {
+        dateFrom: new Date('2026-10-01T00:00:00.000Z'),
+        dateTo: undefined,
+        type: 'EXPENSE',
+        categoryId: undefined,
+      },
+      { skip: 0, take: 10 },
+    );
+    expect(result.items[0]).not.toHaveProperty('userId');
+  });
+
+  it('считает окно выборки из page и pageSize', async () => {
+    const { service, repository } = setup();
+    repository.findMany.mockResolvedValue({ items: [transaction], total: 47 });
+
+    const result = await service.findAll(userId, { page: 3, pageSize: 10 });
+
+    expect(repository.findMany).toHaveBeenCalledWith(
+      userId,
+      expect.anything(),
+      {
+        skip: 20,
+        take: 10,
+      },
+    );
+    expect(result).toMatchObject({ total: 47, page: 3, pageSize: 10 });
+    expect(result.items).toHaveLength(1);
+  });
+
+  it('для страницы за пределами данных отдаёт пустой список', async () => {
+    const { service, repository } = setup();
+    repository.findMany.mockResolvedValue({ items: [], total: 5 });
+
+    const result = await service.findAll(userId, { page: 9, pageSize: 10 });
+
+    expect(result).toEqual({ items: [], total: 5, page: 9, pageSize: 10 });
   });
 });
 
