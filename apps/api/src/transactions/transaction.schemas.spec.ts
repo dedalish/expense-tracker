@@ -70,8 +70,26 @@ describe('updateTransactionSchema', () => {
 });
 
 describe('listTransactionsQuerySchema', () => {
-  it('принимает пустые фильтры', () => {
-    expect(listTransactionsQuerySchema.parse({})).toEqual({});
+  it('принимает пустые фильтры и ставит первую страницу по 10', () => {
+    expect(listTransactionsQuerySchema.parse({})).toEqual({
+      page: 1,
+      pageSize: 10,
+    });
+  });
+
+  it('приводит строки page и pageSize к числам', () => {
+    expect(
+      listTransactionsQuerySchema.parse({ page: '3', pageSize: '20' }),
+    ).toMatchObject({ page: 3, pageSize: 20 });
+  });
+
+  it.each([
+    { page: '0' },
+    { page: '1.5' },
+    { pageSize: '0' },
+    { pageSize: '101' },
+  ])('отклоняет %j', (query) => {
+    expect(listTransactionsQuerySchema.safeParse(query).success).toBe(false);
   });
 
   it('отклоняет dateFrom позже dateTo', () => {

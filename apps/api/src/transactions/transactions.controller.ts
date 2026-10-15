@@ -4,6 +4,7 @@ import {
   type ListTransactionsQuery,
   listTransactionsQuerySchema,
   type Transaction,
+  type TransactionPage,
   type TransactionSummary,
   type TransactionSummaryQuery,
   transactionSummaryQuerySchema,
@@ -48,7 +49,7 @@ export class TransactionsController {
     @CurrentUser() user: JwtPayload,
     @Query(new ZodValidationPipe(listTransactionsQuerySchema))
     query: ListTransactionsQuery,
-  ): Promise<Transaction[]> {
+  ): Promise<TransactionPage> {
     return this.transactions.findAll(user.sub, query);
   }
 
