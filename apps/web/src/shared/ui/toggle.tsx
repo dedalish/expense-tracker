@@ -11,6 +11,10 @@ const toggleVariants = cva(
       variant: {
         default: 'bg-transparent',
         outline: 'border border-input bg-transparent hover:bg-muted',
+        // Своё дополнение: сегменты на серой плашке, выбранный — белый.
+        // Невыбранный при наведении не темнеет, чтобы не казаться выбранным.
+        segmented:
+          'bg-transparent text-muted-foreground hover:bg-transparent not-aria-pressed:hover:text-muted-foreground aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-sm',
       },
       size: {
         default:
