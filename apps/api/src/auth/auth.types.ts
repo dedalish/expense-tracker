@@ -2,7 +2,9 @@ import type { Request } from 'express';
 
 /** Содержимое access-токена. */
 export interface JwtPayload {
+  /** Id пользователя. */
   sub: string;
+  /** Email пользователя на момент выдачи токена. */
   email: string;
 }
 
