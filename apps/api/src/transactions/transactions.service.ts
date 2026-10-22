@@ -23,6 +23,14 @@ import { TransactionsRepository } from './transactions.repository.js';
 const CATEGORY_NOT_FOUND = 'Категория не найдена';
 const TRANSACTION_NOT_FOUND = 'Транзакция не найдена';
 
+/**
+ * Бизнес-логика транзакций: проверка категории, перевод дат и сумм между
+ * API и БД, сводка за месяц.
+ *
+ * Категории получает только через `QueryBus` (`GetCategoryQuery`,
+ * `GetUserCategoriesQuery`), `CategoriesModule` не импортирует. Ошибки БД,
+ * которые здесь не перехвачены, уходят наружу как есть и дают 500.
+ */
 @Injectable()
 export class TransactionsService {
   constructor(
@@ -30,6 +38,16 @@ export class TransactionsService {
     private readonly queryBus: QueryBus,
   ) {}
 
+  /**
+   * Создаёт транзакцию пользователя.
+   *
+   * @param userId Id владельца (`sub` из токена).
+   * @param input Данные транзакции; `date` в формате `YYYY-MM-DD`.
+   * @returns Созданная транзакция в формате API.
+   * @throws {BadRequestException} 400 — категория не найдена у пользователя.
+   * @throws {Prisma.PrismaClientKnownRequestError} P2003 — категорию удалили
+   *   между проверкой и вставкой; не перехватывается, ответ 500.
+   */
   async create(
     userId: string,
     { date, ...input }: CreateTransactionInput,
@@ -43,7 +61,16 @@ export class TransactionsService {
     return toTransactionResponse(transaction);
   }
 
-  /** Страница за пределами данных даёт пустой `items`, а не ошибку. */
+  /**
+   * Страница транзакций пользователя с фильтрами.
+   *
+   * Страница за пределами данных даёт пустой `items`, а не ошибку.
+   *
+   * @param userId Id владельца.
+   * @param query Фильтры (`dateFrom`/`dateTo` включительно, `type`,
+   *   `categoryId`) и пагинация `page` (с 1), `pageSize`.
+   * @returns `{ items, total, page, pageSize }`.
+   */
   async findAll(
     userId: string,
     { page, pageSize, ...query }: ListTransactionsQuery,
@@ -66,6 +93,14 @@ export class TransactionsService {
     };
   }
 
+  /**
+   * Одна транзакция пользователя.
+   *
+   * @param userId Id владельца.
+   * @param id Id транзакции.
+   * @returns Транзакция в формате API.
+   * @throws {NotFoundException} 404 — транзакции нет или она чужая.
+   */
   async findOne(userId: string, id: string): Promise<Transaction> {
     const transaction = await this.transactions.findOne({ id, userId });
     if (!transaction) {
@@ -74,6 +109,20 @@ export class TransactionsService {
     return toTransactionResponse(transaction);
   }
 
+  /**
+   * Частично изменяет транзакцию пользователя.
+   *
+   * @param userId Id владельца.
+   * @param id Id транзакции.
+   * @param input Изменяемые поля; новая `categoryId` проверяется на
+   *   принадлежность пользователю.
+   * @returns Транзакция после изменения.
+   * @throws {BadRequestException} 400 — новая категория не найдена
+   *   у пользователя.
+   * @throws {NotFoundException} 404 — транзакции нет или она чужая.
+   * @throws {Prisma.PrismaClientKnownRequestError} P2003 — новую категорию
+   *   удалили между проверкой и записью; не перехватывается, ответ 500.
+   */
   async update(
     userId: string,
     id: string,
@@ -97,6 +146,13 @@ export class TransactionsService {
     }
   }
 
+  /**
+   * Удаляет транзакцию пользователя.
+   *
+   * @param userId Id владельца.
+   * @param id Id транзакции.
+   * @throws {NotFoundException} 404 — транзакции нет или она чужая.
+   */
   async remove(userId: string, id: string): Promise<void> {
     try {
       await this.transactions.delete({ id, userId });
@@ -108,6 +164,17 @@ export class TransactionsService {
     }
   }
 
+  /**
+   * Сводка за календарный месяц (UTC): доход, расход, баланс и суммы
+   * по категориям, от большей к меньшей. Суммы считаются в `Prisma.Decimal`.
+   *
+   * @param userId Id владельца.
+   * @param query `month` (1–12) и `year`.
+   * @returns Сводка; суммы строками с двумя знаками после запятой.
+   * @throws {Error} Категория транзакции не найдена у пользователя. Это
+   *   нарушение инварианта (`assertOwnCategory` не даёт его создать),
+   *   ответ 500.
+   */
   async summary(
     userId: string,
     { month, year }: TransactionSummaryQuery,
@@ -159,7 +226,15 @@ export class TransactionsService {
     };
   }
 
-  /** Чужая и несуществующая категория неразличимы: 400 в обоих случаях. */
+  /**
+   * Проверяет, что категория принадлежит пользователю.
+   *
+   * Чужая и несуществующая категория неразличимы: 400 в обоих случаях.
+   *
+   * @param userId Id владельца.
+   * @param categoryId Id категории из тела запроса.
+   * @throws {BadRequestException} 400 — категории нет или она чужая.
+   */
   private async assertOwnCategory(
     userId: string,
     categoryId: string,
