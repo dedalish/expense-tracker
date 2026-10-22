@@ -15,6 +15,10 @@
 - **NestJS 12** в режиме **ESM** (`"type": "module"`, `module: nodenext`). Относительные импорты пишутся **с `.js`**. Входные данные валидируются через `ZodValidationPipe` (`src/common/zod-validation.pipe.ts`) со схемами из shared, а не через class-validator: nestjs-zod не поддерживает Nest 12. Переменные окружения проверяет Zod-схема в `src/config/env.ts` (`ConfigModule.forRoot({ validate })`). Читать их нужно через `ConfigService<Env, true>` и `get(key, { infer: true })`. Global prefix `/api`, CORS для `WEB_ORIGIN`.
 - **Prisma 7**: генератор `prisma-client` пишет клиент в `src/generated/prisma`. Эта папка в .gitignore. Импорт клиента: `../generated/prisma/client.js`. Подключение идёт через driver adapter `@prisma/adapter-pg` в `PrismaService` (`@Global` `PrismaModule`). URL базы задаётся в `prisma.config.ts`, а не в `schema.prisma`. `migrate dev` в Prisma 7 не запускает generate, поэтому скрипты `dev`, `build`, `lint`, `typecheck` и `test` сначала вызывают `prisma generate`.
 - **ESLint**: включён type-aware `recommendedTypeChecked`.
+- **Swagger** (`@nestjs/swagger`): UI на `/api/docs`, JSON на `/api/docs-json`, при `NODE_ENV=production` выключен (`main.ts`). DTO-классы не пишутся, схемы берутся из Zod через Standard Schema:
+  - вход: `@Body({ schema, pipes: [new ZodValidationPipe(schema)] })`, так же `@Query` и `@Param`. Схема в опциях нужна только Swagger, проверяет пайп;
+  - ответы: `@ApiOkResponse({ standardSchema })` со схемой ответа из shared, ошибки — схемы из `src/common/api-error.schemas.ts` (`httpErrorSchema`, `validationErrorSchema`, `badRequestSchema`);
+  - на контроллере `@ApiTags`, `@ApiBearerAuth()` и `@ApiUnauthorizedResponse`, на роуте `@ApiOperation` и ответы на все коды, которые он возвращает. Образец: `transactions.controller.ts`. Остальные контроллеры пока без описаний.
 
 ## Модули
 
