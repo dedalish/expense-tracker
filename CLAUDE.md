@@ -54,7 +54,7 @@ Prettier: одинарные кавычки, `trailingComma: all`, ширина 
 
 - `main` всегда рабочая: проходит `build`, `lint`, `typecheck`, `test`, `format:check`. Напрямую в `main` не коммитить.
 - Каждая фича или исправление делается в отдельной ветке от свежего `main`: `git switch main && git pull && git switch -c <ветка>`.
-- Имя ветки: `<type>/<scope>-<кратко>` латиницей в kebab-case, `type` и `scope` те же, что в коммитах: `feat/web-home`, `fix/api-transactions-summary`, `docs/claude-md`.
+- Имя ветки: `<type>/<scope>-<кратко>` латиницей в kebab-case, `type` и `scope` те же, что в коммитах (skill `commit`): `feat/web-home`, `fix/api-transactions-summary`, `docs/claude-md`.
 - Одна ветка — одна фича. Работа, не относящаяся к ней, уходит в отдельную ветку.
 - Ветка вливается в `main` через pull request после зелёных проверок. Влитая ветка удаляется.
 - Ветку и PR создавать только по просьбе пользователя.
@@ -74,11 +74,4 @@ Prettier: одинарные кавычки, `trailingComma: all`, ширина 
 
 ## Коммиты
 
-[Conventional Commits](https://www.conventionalcommits.org/ru/v1.0.0/): `<type>(<scope>): <описание>`.
-
-- **type**: `feat` (новая функциональность), `fix`, `refactor`, `perf`, `test`, `docs`, `style` (форматирование), `build` (зависимости, сборка), `ci`, `chore`.
-- **scope**: пакет или область — `api`, `web`, `shared`, `db` (схема Prisma и миграции). Изменение нескольких пакетов: scope по главному или без scope.
-- **Описание** на русском, со строчной буквы, без точки в конце, до 72 символов, отвечает на вопрос «что сделано»: `feat(api): модуль транзакций`.
-- **Тело** (через пустую строку) объясняет «зачем» и отступления от задачи. Ломающее изменение API помечается `!` (`feat(api)!: …`) и строкой `BREAKING CHANGE: …` в теле.
-- Один коммит — одна логическая единица: фича вместе со своей миграцией, тестами и правками CLAUDE.md. Миграция Prisma не отделяется от схемы.
-- Перед коммитом: `npm run build`, `lint`, `typecheck`, `test`, `format:check`. Коммитить только по просьбе пользователя, `.env` не коммитить.
+Правила коммитов (Conventional Commits на русском, проверки перед коммитом, что нельзя коммитить) лежат в skill `commit`: `.claude/skills/commit/SKILL.md`. Перед любым коммитом следовать ему; коммиты делаются на модели Sonnet (`model: sonnet` в skill). Коммитить только по просьбе пользователя.
