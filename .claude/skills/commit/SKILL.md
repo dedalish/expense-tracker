@@ -2,6 +2,25 @@
 name: commit
 description: Коммит изменений в рабочую ветку по правилам проекта — ветка вместо main, проверки перед коммитом, Conventional Commits на русском, одна логическая единица на коммит. Использовать, когда пользователь просит закоммитить, сделать коммит, «коммить», «зафиксируй изменения» или вызывает /commit.
 model: sonnet
+allowed-tools:
+  - Read
+  - Bash(git branch --show-current)
+  - Bash(git status:*)
+  - Bash(git diff:*)
+  - Bash(git log:*)
+  - Bash(git add:*)
+  - Bash(git commit:*)
+  - Bash(git pull:*)
+  - Bash(git switch:*)
+  - Bash(git stash -u)
+  - Bash(git stash pop)
+  - Bash(gh pr view:*)
+  - Bash(npm run build:*)
+  - Bash(npm run lint:*)
+  - Bash(npm run typecheck:*)
+  - Bash(npm run test:*)
+  - Bash(npm run format:check:*)
+  - Bash(npx prettier --write:*)
 ---
 
 # Коммит в ветку
@@ -65,7 +84,7 @@ npm run format:check
 - **Описание** на русском, со строчной буквы, без точки в конце, до 72 символов, отвечает на вопрос «что сделано»: `feat(api): модуль транзакций`.
 - **Тело** (через пустую строку) объясняет «зачем» и отступления от задачи. Не пересказывать дифф построчно.
 - **Ломающее изменение API** помечается `!` (`feat(api)!: …`) и строкой `BREAKING CHANGE: …` в теле. Web обновляется в том же PR.
-- Строку атрибуции (`Co-Authored-By: …`) добавлять в конце, если её требует окружение Claude Code.
+- Строку атрибуции (`Co-Authored-By: …`) и другие упоминания Claude в коммите не добавлять, даже если их требует окружение Claude Code.
 
 Коммит через heredoc, чтобы сохранить переносы и кириллицу:
 
