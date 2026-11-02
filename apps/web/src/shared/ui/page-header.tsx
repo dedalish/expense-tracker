@@ -9,14 +9,18 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+      <div className="grid gap-1.5">
+        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+          {title}
+        </h1>
         {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-base text-muted-foreground">{description}</p>
         )}
       </div>
-      {actions && <div className="flex gap-2">{actions}</div>}
+      {actions && (
+        <div className="flex flex-wrap items-center gap-2">{actions}</div>
+      )}
     </div>
   );
 }

@@ -17,10 +17,10 @@ export function TransactionRow({
   actions,
 }: TransactionRowProps) {
   return (
-    <li className="flex items-center gap-3 py-3">
+    <li className="flex items-center gap-3 py-3.5">
       <div className="min-w-0 flex-1">
         <div className="min-w-0 text-sm font-medium">{category}</div>
-        <div className="mt-0.5 truncate pl-9 text-xs text-muted-foreground">
+        <div className="mt-0.5 truncate pl-11 text-xs text-muted-foreground">
           {formatDate(transaction.date)}
           {transaction.description && ` · ${transaction.description}`}
         </div>

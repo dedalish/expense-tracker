@@ -57,27 +57,26 @@ export async function HomePage({ searchParams }: PageProps<'/'>) {
     <div className="grid gap-6">
       <PageHeader
         title={`Привет, ${user.name}!`}
+        description="Сколько пришло, сколько ушло и что осталось за месяц"
         actions={
-          <TransactionFormDialog
-            categories={categories}
-            trigger={
-              <Button>
-                <Plus />
-                Добавить транзакцию
-              </Button>
-            }
-          />
+          <>
+            <MonthSelect
+              value={toMonthParam(selected)}
+              defaultValue={toMonthParam(today)}
+              options={monthOptions(today, selected)}
+            />
+            <TransactionFormDialog
+              categories={categories}
+              trigger={
+                <Button size="lg">
+                  <Plus />
+                  Добавить транзакцию
+                </Button>
+              }
+            />
+          </>
         }
       />
-
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-muted-foreground">Сводка за</span>
-        <MonthSelect
-          value={toMonthParam(selected)}
-          defaultValue={toMonthParam(today)}
-          options={monthOptions(today, selected)}
-        />
-      </div>
 
       <MonthSummary summary={summary} />
 
@@ -86,7 +85,7 @@ export async function HomePage({ searchParams }: PageProps<'/'>) {
           <CardTitle>Последние операции</CardTitle>
           <CardAction>
             <Button
-              variant="link"
+              variant="secondary"
               nativeButton={false}
               render={<Link href="/transactions" />}
             >

@@ -22,7 +22,7 @@ export function TransactionsList({
 }: TransactionsListProps) {
   if (transactions.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
+      <p className="py-10 text-center text-sm text-muted-foreground">
         {emptyText}
       </p>
     );
@@ -31,7 +31,7 @@ export function TransactionsList({
   const categoryById = new Map(categories.map((c) => [c.id, c]));
 
   return (
-    <ul className="divide-y">
+    <ul className="divide-y divide-border">
       {transactions.map((transaction) => {
         const category = categoryById.get(transaction.categoryId);
         return (

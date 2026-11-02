@@ -9,7 +9,7 @@ interface CategoryBadgeProps {
 /** Иконка категории на фоне её цвета и название. */
 export function CategoryBadge({ category, className }: CategoryBadgeProps) {
   return (
-    <span className={cn('inline-flex min-w-0 items-center gap-2', className)}>
+    <span className={cn('inline-flex min-w-0 items-center gap-3', className)}>
       <CategoryIcon category={category} />
       <span className="truncate">{category.name}</span>
     </span>
@@ -21,7 +21,7 @@ export function CategoryIcon({ category, className }: CategoryBadgeProps) {
     <span
       aria-hidden
       className={cn(
-        'flex size-7 shrink-0 items-center justify-center rounded-full text-sm',
+        'flex size-8 shrink-0 items-center justify-center rounded-full text-sm',
         className,
       )}
       // Цвет приходит из данных, классом Tailwind его не задать. 33 — прозрачность 20 %.

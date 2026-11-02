@@ -6,7 +6,7 @@ type TransactionAmountProps = Pick<Transaction, 'amount' | 'type'> & {
   className?: string;
 };
 
-/** Сумма со знаком: доход зелёным с «+», расход с «−». */
+/** Сумма со знаком на плашке: доход зелёная с «+», расход красноватая с «−». */
 export function TransactionAmount({
   amount,
   type,
@@ -16,8 +16,8 @@ export function TransactionAmount({
   return (
     <span
       className={cn(
-        'font-medium whitespace-nowrap tabular-nums',
-        income && 'text-emerald-600 dark:text-emerald-400',
+        'rounded-full px-2.5 py-1 text-sm font-semibold whitespace-nowrap tabular-nums',
+        income ? 'bg-income-soft text-income' : 'bg-expense-soft text-expense',
         className,
       )}
     >

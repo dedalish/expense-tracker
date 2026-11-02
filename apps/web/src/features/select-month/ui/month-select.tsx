@@ -37,7 +37,7 @@ export function MonthSelect({
 
   return (
     <Select items={options} value={value} onValueChange={select}>
-      <SelectTrigger aria-label="Месяц сводки" className="w-48">
+      <SelectTrigger aria-label="Месяц сводки" className="h-11! w-52">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
