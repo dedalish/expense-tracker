@@ -4,6 +4,7 @@ description: Создание pull request на GitHub по правилам п�
 argument-hint: '"[название PR]" [целевая ветка, по умолчанию main]'
 allowed-tools:
   - Read
+  - Bash(bash ${CLAUDE_SKILL_DIR}/scripts/validate.sh)
   - Bash(git branch --show-current)
   - Bash(git status:*)
   - Bash(git diff:*)
@@ -25,6 +26,14 @@ allowed-tools:
 # Pull request на GitHub
 
 Вызов этого skill — просьба запушить текущую ветку и создать из неё PR. Сливает PR **пользователь**, skill только создаёт его. Коммитить, переключать ветки, делать rebase, merge и force push skill не может: если без этого не обойтись, остановиться и спросить пользователя.
+
+## Подготовка
+
+1. Готова ли ветка: !`bash ${CLAUDE_SKILL_DIR}/scripts/validate.sh`
+2. Коммиты ветки: !`git log origin/main..HEAD --oneline`
+3. Изменённые файлы: !`git diff --stat origin/main...HEAD`
+
+Сравнение здесь идёт с `origin/main` до `git fetch`: это предварительная картина. Точную для `<base>` дают шаги 2 и 5.
 
 ## 1. Аргументы
 
