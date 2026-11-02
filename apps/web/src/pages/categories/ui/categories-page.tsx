@@ -22,7 +22,7 @@ export async function CategoriesPage() {
         actions={
           <CategoryFormDialog
             trigger={
-              <Button>
+              <Button size="lg">
                 <Plus />
                 Добавить
               </Button>
@@ -46,7 +46,7 @@ export async function CategoriesPage() {
                 <CardContent className="flex items-center gap-3">
                   <CategoryIcon
                     category={category}
-                    className="size-9 text-lg"
+                    className="size-11 text-xl"
                   />
                   <span className="min-w-0 flex-1 truncate font-medium">
                     {category.name}

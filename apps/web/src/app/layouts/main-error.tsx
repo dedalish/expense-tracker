@@ -17,7 +17,7 @@ export function MainError({
   }, [error]);
 
   return (
-    <Card className="max-w-md">
+    <Card className="max-w-lg">
       <CardHeader>
         <CardTitle>Не удалось загрузить данные</CardTitle>
       </CardHeader>

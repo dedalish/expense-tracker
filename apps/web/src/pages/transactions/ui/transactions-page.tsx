@@ -49,7 +49,7 @@ export async function TransactionsPage({
           <TransactionFormDialog
             categories={categories}
             trigger={
-              <Button>
+              <Button size="lg">
                 <Plus />
                 Добавить
               </Button>

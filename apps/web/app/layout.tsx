@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Onest } from 'next/font/google';
 import '@/app/styles/globals.css';
 
-// Переменная --font-sans используется темой shadcn в globals.css.
-const sans = Inter({ subsets: ['latin', 'cyrillic'], variable: '--font-sans' });
+// Onest — геометрический гротеск с родной кириллицей. Переменная
+// --font-sans используется темой shadcn в globals.css.
+const sans = Onest({ subsets: ['latin', 'cyrillic'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: 'Expense Tracker',
