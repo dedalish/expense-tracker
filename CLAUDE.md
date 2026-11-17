@@ -48,7 +48,7 @@ npm run format | format:check        # Prettier на весь репозитор
 
 ## Стиль
 
-Prettier: одинарные кавычки, `trailingComma: all`, ширина 80. Корневая `.claude/` (планы, промпты, шаблоны) исключена в `.prettierignore`, её файлы не форматировать. `prettier-plugin-tailwindcss` сортирует классы. ESLint-конфиги свои в каждом пакете (`eslint.config.mjs`).
+Prettier: одинарные кавычки, `trailingComma: all`, ширина 80. Конфиг один, корневой `.prettierrc.json`: Prettier находит его и из пакетов. Скрипты пакетов (`npm run format -w @expense-tracker/web`) передают `--ignore-path` на корневые `.gitignore` и `.prettierignore`, иначе из папки пакета они не читаются и Prettier форматирует сгенерированный код (`apps/api/src/generated`). Корневая `.claude/` (планы, промпты, шаблоны) исключена в `.prettierignore`, её файлы не форматировать. `prettier-plugin-tailwindcss` сортирует классы. ESLint-конфиги свои в каждом пакете (`eslint.config.mjs`).
 
 ## Ветки (GitHub flow)
 
